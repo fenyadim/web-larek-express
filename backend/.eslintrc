@@ -19,6 +19,8 @@
     "import/extensions": [".js", ".ts"]
   },
   "rules": {
+    "linebreak-style": 0,
+    "object-curly-newline": "off",
     "no-shadow": "off",
     "@typescript-eslint/no-shadow": "warn",
     "import/extensions": [
