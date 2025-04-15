@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { NextFunction, Request, Response } from 'express';
 import { BadRequestError } from '../errors/bad-request-error';
-import Product from '../model/product';
+import Product from '../models/product';
 
 export enum Payment {
   CARD = 'card',

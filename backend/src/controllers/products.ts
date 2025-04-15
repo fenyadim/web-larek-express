@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { ConflictError } from '../errors/conflict-error';
-import Product from '../model/product';
+import Product from '../models/product';
 
 export const getAllProducts = async (
   _: Request,
