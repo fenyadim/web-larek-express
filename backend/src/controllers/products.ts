@@ -5,7 +5,7 @@ import Product from '../model/product';
 export const getAllProducts = async (_: Request, res: Response) => {
   try {
     const products = await Product.find({});
-    res.send({ items: products });
+    res.send({ items: products, total: products.length });
   } catch (e) {
     res.status(400).send({ message: 'Not found' });
   }

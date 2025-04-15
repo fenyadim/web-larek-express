@@ -1,22 +1,34 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import 'dotenv/config';
-// eslint-disable-next-line import/no-extraneous-dependencies
+import { errors } from 'celebrate';
 import cors from 'cors';
-import express from 'express';
+import 'dotenv/config';
+import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { createProduct, getAllProducts } from './controllers/products';
+import path from 'path';
+import orderRouter from './routes/order';
+import productRouter from './routes/products';
+
+const DB_ADDRESS = process.env.DB_ADDRESS || '';
+const PORT = process.env.PORT || '3000';
 
 const app = express();
+
 app.use(cors());
-
-mongoose.connect(process.env.DB_ADDRESS as string);
-
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'images')));
 
-app.get('/product', getAllProducts);
-app.post('/product', createProduct);
+mongoose.connect(DB_ADDRESS);
 
-app.listen(3000, () => {
-  console.log('Listen on port 3000');
+app.get('/images/:file', (req: Request, res: Response) => {
+  const { file } = req.params;
+  res.sendFile(path.join(__dirname, 'images', file));
+});
+
+app.use('/product', productRouter);
+app.use('/order', orderRouter);
+
+app.use(errors());
+
+app.listen(PORT, () => {
+  console.log(`Listen on port ${PORT}`);
 });

@@ -10,7 +10,7 @@ interface IProduct {
   image: IImage;
   category: string;
   description?: string;
-  price?: number;
+  price: number;
 }
 
 const imageSchema = new mongoose.Schema<IImage>({
