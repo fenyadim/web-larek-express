@@ -1,17 +1,25 @@
-import { Request, Response } from 'express';
-import { Error } from 'mongoose';
+import { NextFunction, Request, Response } from 'express';
+import { ConflictError } from '../errors/conflict-error';
 import Product from '../model/product';
 
-export const getAllProducts = async (_: Request, res: Response) => {
+export const getAllProducts = async (
+  _: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const products = await Product.find({});
     res.send({ items: products, total: products.length });
   } catch (e) {
-    res.status(400).send({ message: 'Not found' });
+    next(new Error('Ошибка на стороне сервера'));
   }
 };
 
-export const createProduct = async (req: Request, res: Response) => {
+export const createProduct = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { title, category, description, image, price } = req.body;
 
   try {
@@ -24,6 +32,6 @@ export const createProduct = async (req: Request, res: Response) => {
     });
     res.send(product);
   } catch (e) {
-    res.status(400).send({ message: (e as Error).message });
+    next(new ConflictError((e as Error).message));
   }
 };
