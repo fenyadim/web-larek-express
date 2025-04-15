@@ -30,7 +30,7 @@ export const createProduct = async (
       image,
       price,
     });
-    res.send(product);
+    res.status(201).send(product);
   } catch (e) {
     next(new ConflictError((e as Error).message));
   }
