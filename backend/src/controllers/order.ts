@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { NextFunction, Request, Response } from 'express';
-import { BadRequestError } from '../errors/bad-request-error';
+import { BadRequestError } from '../errors';
 import Product from '../models/product';
 
 export enum Payment {
@@ -24,34 +24,40 @@ export const createOrder = async (
 ) => {
   const { total, items }: IOrder = req.body;
 
-  const foundProducts = await Product.find({ _id: { $in: items } });
+  try {
+    const foundProducts = await Product.find({ _id: { $in: items } });
 
-  const foundIds = foundProducts.map((p) => p._id.toString());
-  const notFoundId = items.find((id) => !foundIds.includes(id));
+    const foundIds = foundProducts.map((p) => p._id.toString());
+    const notFoundId = items.find((id) => !foundIds.includes(id));
 
-  if (notFoundId) {
-    next(new BadRequestError(`Товар с id ${notFoundId} не найден`));
-    return;
-  }
+    if (notFoundId) {
+      next(new BadRequestError(`Товар с id ${notFoundId} не найден`));
+      return;
+    }
 
-  const productWithoutPrice = foundProducts.find((p) => p.price === null);
+    const productWithoutPrice = foundProducts.find((p) => p.price === null);
 
-  if (productWithoutPrice) {
-    next(
-      new BadRequestError(`Товар с id ${productWithoutPrice._id} не продается`)
+    if (productWithoutPrice) {
+      next(
+        new BadRequestError(
+          `Товар с id ${productWithoutPrice._id} не продается`
+        )
+      );
+      return;
+    }
+
+    const totalPrice = foundProducts.reduce(
+      (acc, product) => acc + (product.price as number),
+      0
     );
-    return;
+
+    if (totalPrice !== total) {
+      next(new BadRequestError('Неверная сумма заказа'));
+      return;
+    }
+
+    res.send({ id: faker.string.uuid(), total });
+  } catch (e) {
+    next(new Error((e as Error).message));
   }
-
-  const totalPrice = foundProducts.reduce(
-    (acc, product) => acc + (product.price as number),
-    0
-  );
-
-  if (totalPrice !== total) {
-    next(new BadRequestError('Неверная сумма заказа'));
-    return;
-  }
-
-  res.send({ id: faker.string.uuid(), total });
 };

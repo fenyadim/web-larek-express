@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import { ConflictError } from '../errors/conflict-error';
+import { Error as MongooseError } from 'mongoose';
+import { BadRequestError, ConflictError } from '../errors';
 import Product from '../models/product';
 
 export const getAllProducts = async (
@@ -32,6 +33,16 @@ export const createProduct = async (
     });
     res.status(201).send(product);
   } catch (e) {
-    next(new ConflictError((e as Error).message));
+    if (e instanceof MongooseError.ValidationError) {
+      next(new BadRequestError(e.message));
+      return;
+    }
+
+    if (e instanceof Error && e.message.includes('E11000')) {
+      next(new ConflictError(e.message));
+      return;
+    }
+
+    next(new Error((e as Error).message));
   }
 };

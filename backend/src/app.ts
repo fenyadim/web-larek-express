@@ -5,7 +5,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import path from 'path';
 import { DB_ADDRESS, PORT } from './config';
-import { CustomError } from './errors/custom-error';
+import { CustomError } from './errors';
 import { errorsLogger, requestLogger } from './middlewars/logger';
 import { orderRouter, productRouter } from './routes';
 
